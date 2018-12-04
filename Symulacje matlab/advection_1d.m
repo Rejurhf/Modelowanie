@@ -42,6 +42,7 @@ for n=1:nt
     % Source
     if n==1
         C(1) = 1;
+        C(2) = 0.9;
     else
         C(1) = 0;
     end
