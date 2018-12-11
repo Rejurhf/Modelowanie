@@ -33,16 +33,19 @@ class Burgers2D:
         Cnn[-1, :] = Cnn[-2, :]
 
         if self.time_elapsed < 2:
-            Cnn[9][3] = Cnn[9][11] + 50
+            Cnn[10][31] = Cnn[9][3] + 50
+            Cnn[10][30] = Cnn[9][4] + 50
+            Cnn[9][31] = Cnn[9][3] + 50
+            Cnn[9][30] = Cnn[9][4] + 50
 
         for i in range(1, len(Cn)-1):
-            for j in range(1, len(Cn)-1):
+            for j in range(1, len(Cn[0])-1):
                 # Advection term
-                A = u[i] * (Cn[i+1][j] - Cn[i-1][j])/(2*dx) + v * (Cn[i][j+1] - Cn[i][j-1])/(2*dy)
+                A = u[i][j] * v[i][j] * (Cn[i+1][j] - Cn[i-1][j])/(2*dx) + u[i][j] * v[i][j] * (Cn[i][j+1] - Cn[i][j-1])/(2*dy)
                 # Diffusion term
-                D = K[i] * (Cn[i+1][j] - 2*Cn[i][j] + Cn[i-1][j])/dx**2 + (K[i] * (Cn[i][j+1] - 2*Cn[i][j] + Cn[i][j-1])/dy**2)
+                D = K[i][j] * (Cn[i+1][j] - 2*Cn[i][j] + Cn[i-1][j])/dx**2 + (K[i][j] * (Cn[i][j+1] - 2*Cn[i][j] + Cn[i][j-1])/dy**2)
                 # Euler's Method
-                Cnn[i][j] = Cn[i][j] + dt*(-A+D)
+                Cnn[i][j] = Cn[i][j] + dt*(-A + D)
                 if Cnn[i][j] < 0:
                     Cnn[i][j]=np.abs(Cnn[i][j]);
 
@@ -53,16 +56,31 @@ class Burgers2D:
         """execute one time step of length dt and update state"""
         self.time_elapsed += dt
 
+
+def build_up_b(b, rho, dt, u, v, dx, dy):
+    b[1:-1, 1:-1] = (rho * (1 / dt *
+                    ((u[1:-1, 2:] - u[1:-1, 0:-2]) /
+                     (2 * dx) + (v[2:, 1:-1] - v[0:-2, 1:-1]) / (2 * dy)) -
+                    ((u[1:-1, 2:] - u[1:-1, 0:-2]) / (2 * dx))**2 -
+                      2 * ((u[2:, 1:-1] - u[0:-2, 1:-1]) / (2 * dy) *
+                           (v[1:-1, 2:] - v[1:-1, 0:-2]) / (2 * dx))-
+                          ((v[2:, 1:-1] - v[0:-2, 1:-1]) / (2 * dy))**2))
+
+    return b
 #------------------------------------------------------------
 Lx = 7         # x len
 Ly = 5         # x len
-dx = dy = 0.2        # Every 0.2m
+dx = dy = 0.1        # Every 0.2m
 nx = int(Lx/dx)
 ny = int(Ly/dy)     # number of steps
 C = np.zeros((ny,nx))
-u = np.full(nx, 1)
-K = np.full(nx, 0.01)
-v = 1. # 0.1 + 0.01*(y-Ly) + np.sin(4*np.pi()*x/Lx)
+u = np.zeros((ny,nx))
+u[:, :] = 0.1
+K = np.zeros((ny,nx))
+K[:, :] = 0.001
+v = np.zeros((ny,nx))
+v = build_up_v(v)
+print(v)
 
 # set up initial state and global variables
 burgers = Burgers2D(C, u, K, v, dx, dy)
