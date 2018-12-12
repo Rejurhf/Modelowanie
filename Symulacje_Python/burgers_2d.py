@@ -32,16 +32,15 @@ class Burgers2D:
         Cnn[0, :] = Cnn[1, :]
         Cnn[-1, :] = Cnn[-2, :]
 
-        if self.time_elapsed < 2:
-            Cnn[10][31] = Cnn[9][3] + 50
-            Cnn[10][30] = Cnn[9][4] + 50
-            Cnn[9][31] = Cnn[9][3] + 50
-            Cnn[9][30] = Cnn[9][4] + 50
+        if self.time_elapsed < 1:
+            for m in range(15, 20):
+                for n in range(5, 10):
+                    Cnn[m,n] += 50
 
         for i in range(1, len(Cn)-1):
             for j in range(1, len(Cn[0])-1):
                 # Advection term
-                A = (u[i][j] + v[i][j]) * (Cn[i+1][j] - Cn[i-1][j])/(2*dx) + (u[i][j] + v[i][j]) * (Cn[i][j+1] - Cn[i][j-1])/(2*dy)
+                A = v[i][j] * (Cn[i+1][j] - Cn[i-1][j])/(2*dx) + u[i][j] * (Cn[i][j+1] - Cn[i][j-1])/(2*dy)
                 # Diffusion term
                 D = K[i][j] * (Cn[i+1][j] - 2*Cn[i][j] + Cn[i-1][j])/dx**2 + (K[i][j] * (Cn[i][j+1] - 2*Cn[i][j] + Cn[i][j-1])/dy**2)
                 # Euler's Method
@@ -59,18 +58,21 @@ class Burgers2D:
 #------------------------------------------------------------
 Lx = 7         # x len
 Ly = 5         # x len
-dx = dy = 0.1        # Every 0.2m
+dx = dy = 0.05        # Every 0.2m
 nx = int(Lx/dx)
 ny = int(Ly/dy)     # number of steps
 C = np.zeros((ny,nx))
 u = np.zeros((ny,nx))
-u[:, :] = 0.0
+u[:, :] = 0.5
 K = np.zeros((ny,nx))
-K[:, :] = 0.001
+K[:, :] = 0.01
 v = np.zeros((ny,nx))
 for i in range(ny):
-    v[i, :] = np.sin(np.pi*i/ny)
+    for j in range(nx):
+        v[i, j] = (0.1 + 0.001*(i-Ly) + np.sin(np.pi*j/Lx)/4)
 print(v)
+print(np.min(v))
+print(np.max(v))
 
 # set up initial state and global variables
 burgers = Burgers2D(C, u, K, v, dx, dy)
