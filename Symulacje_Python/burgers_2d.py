@@ -1,7 +1,6 @@
 # Rejurhf
 # 4.12.2018
 
-from numpy import sin, cos
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as integrate
