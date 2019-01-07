@@ -16,32 +16,40 @@ class Burgers2D:
                  dx,
                  dy,
                  ):
-        self.C = np.asarray(C, dtype='float')
-        self.u = np.asarray(u, dtype='float')
-        self.K = np.asarray(K, dtype='float')
-        self.v = np.asarray(v, dtype='float')
+        self.C = np.asarray(C, dtype='float') # main array of sipll
+        # Advection
+        self.u = np.asarray(u, dtype='float') # velocity moving in y direction
+        self.v = np.asarray(v, dtype='float') # velocity moving in x direction
+        self.K = np.asarray(K, dtype='float') # array of Diffusion
         self.time_elapsed = 0
 
     def solution(self):
         """Advection solution"""
+        # tmp C in t
         Cn = self.C
+        # tmp C in t+1
         Cnn = Cn
+        # managing edges of array edge pixel is equal to neighbor pixel
         Cnn[:, 0] = Cnn[:, 1]
         Cnn[:, -1] = Cnn[:, -2]
         Cnn[0, :] = Cnn[1, :]
         Cnn[-1, :] = Cnn[-2, :]
 
+        # spilling oil
         if self.time_elapsed < 1:
             for m in range(15, 20):
                 for n in range(5, 10):
                     Cnn[m,n] += 50
 
+        # calculate oil spill
         for i in range(1, len(Cn)-1):
             for j in range(1, len(Cn[0])-1):
                 # Advection term
-                A = v[i][j] * (Cn[i+1][j] - Cn[i-1][j])/(2*dx) + u[i][j] * (Cn[i][j+1] - Cn[i][j-1])/(2*dy)
+                A = v[i][j] * (Cn[i+1][j] - Cn[i-1][j])/(2*dx) + \
+                    u[i][j] * (Cn[i][j+1] - Cn[i][j-1])/(2*dy)
                 # Diffusion term
-                D = K[i][j] * (Cn[i+1][j] - 2*Cn[i][j] + Cn[i-1][j])/dx**2 + (K[i][j] * (Cn[i][j+1] - 2*Cn[i][j] + Cn[i][j-1])/dy**2)
+                D = K[i][j] * (Cn[i+1][j] - 2*Cn[i][j] + Cn[i-1][j])/dx**2 + \
+                    (K[i][j] * (Cn[i][j+1] - 2*Cn[i][j] + Cn[i][j-1])/dy**2)
                 # Euler's Method
                 Cnn[i][j] = Cn[i][j] + dt*(-A + D)
                 if Cnn[i][j] < 0:
@@ -61,17 +69,14 @@ dx = dy = 0.05        # Every 0.2m
 nx = int(Lx/dx)
 ny = int(Ly/dy)     # number of steps
 C = np.zeros((ny,nx))
-u = np.zeros((ny,nx))
+u = np.zeros((ny,nx))   # velocity moving in x direction advection
 u[:, :] = 0.5
-K = np.zeros((ny,nx))
+K = np.zeros((ny,nx))   # array of Diffusion
 K[:, :] = 0.01
-v = np.zeros((ny,nx))
+v = np.zeros((ny,nx))   # velocity moving in y direction advection
 for i in range(ny):
     for j in range(nx):
         v[i, j] = (0.1 + 0.001*(i-Ly) + np.sin(np.pi*j/Lx)/4)
-print(v)
-print(np.min(v))
-print(np.max(v))
 
 # set up initial state and global variables
 burgers = Burgers2D(C, u, K, v, dx, dy)
