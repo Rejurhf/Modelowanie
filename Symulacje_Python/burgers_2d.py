@@ -62,6 +62,7 @@ class Burgers2D:
         """execute one time step of length dt and update state"""
         self.time_elapsed += dt
 
+
 #------------------------------------------------------------
 Lx = 12.8         # x len
 Ly = 12.8         # x len
