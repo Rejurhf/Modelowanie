@@ -21,7 +21,7 @@ def saveArrayToJSON(filename, name, array):
     else:
         tmp_dict = json.loads(json_str)
     tmp_dict[name] = array.tolist()
-    fw.write(json.dumps(tmp_dict))
+    fw.write(json.dumps(tmp_dict, indent=2))
 
     fw.close()
 
@@ -45,7 +45,9 @@ def getArrayFromJSON(filename, arrayname):
         f.close()
 
         tmp_dict = json.loads(json_str)
-        return tmp_dict[arrayname]
+        if arrayname in tmp_dict:
+            return tmp_dict[arrayname]
+    return [[]]
 
 
 def deleteFile(filename):
@@ -55,9 +57,11 @@ def deleteFile(filename):
         print("File does not exist")
 
 # ------------------------------------------------------------
-deleteFile("test.json")
-K = np.zeros((5,5))
-K1 = np.ones((5,5))
-
-saveArrayToJSON("test.json", "test", K)
-saveArrayToJSON("test", "test1", K1)
+# deleteFile("test.json")
+# K = np.zeros((5,5))
+# K1 = np.ones((5,5))
+#
+# saveArrayToJSON("test.json", "test", K)
+# saveArrayToJSON("test", "test1", K1)
+# print(getArrayFromJSON("test", "test1"))
+# print(getArrayFromJSON("test", "test2"))
