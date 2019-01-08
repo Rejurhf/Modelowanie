@@ -6,40 +6,50 @@ import numpy as np
 import os
 
 def saveArrayToJSON(filename, name, array):
+    ''' Convert list or array to json and save it to a file
+        filename - name of output file, will be createt if it is not existing;
+        name - key in the dict; array - list or numpay array
+     '''
     json_str = ""
-    if filename[-5:] != ".json":
+    if filename[-5:] != ".json":    # check if filename ends with .json
         filename += ".json"
 
-    if os.path.exists("res/" + filename):
+    if os.path.exists("res/" + filename):   # if file exists get content from it
         fr = open("res/" + filename, 'r')
         json_str = fr.read()
         fr.close()
 
-    fw = open("res/" + filename, 'w')
+    fw = open("res/" + filename, 'w')   # open file to write data
+    # if file is not empty save data to tmp_dict else create empty dict
     if not json_str:
         tmp_dict = {}
     else:
         tmp_dict = json.loads(json_str)
 
-    if isinstance(array,(list,)):
-        tmp_dict[name] = array
+    if isinstance(array,(list,)):   # if array is not list convert it to list
+        tmp_dict[name] = array  # create dict from name and array
     else:
         tmp_dict[name] = array.tolist()
 
-    fw.write(json.dumps(tmp_dict))
+    fw.write(json.dumps(tmp_dict))  # save dict to file
     fw.close()
 
 def printJSON(filename):
-    if filename[-5:] != ".json":
+    ''' Print data from json file. filename - name of output file'''
+    if filename[-5:] != ".json":    # check if filename ends with .json
         filename += ".json"
 
-    if os.path.exists("res/" + filename):
+    if os.path.exists("res/" + filename):   # if file exists get content from it
         f = open("res/" + filename, "r")
-        json_str = f.read()
-        print(json.loads(json_str))
+        json_str = f.read() # read data
+        print(json.loads(json_str)) # print data
         f.close()
 
 def getArrayFromJSON(filename, arrayname):
+    ''' Get array grom file
+        filename - file with arrays;
+        name - key in the dict, specyfiing which array to get
+     '''
     if filename[-5:] != ".json":
         filename += ".json"
 
@@ -49,10 +59,10 @@ def getArrayFromJSON(filename, arrayname):
         f.close()
 
         tmp_dict = json.loads(json_str)
+        # if array with kay == arrayname exists return it
         if arrayname in tmp_dict:
-            return tmp_dict[arrayname]
-    return [[]]
-
+            return tmp_dict[arrayname]  # return array
+    return [[]] # else return empty list
 
 def deleteFile(filename):
     if os.path.exists("res/" + filename):
