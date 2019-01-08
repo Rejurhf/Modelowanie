@@ -63,8 +63,8 @@ class Burgers2D:
         self.time_elapsed += dt
 
 #------------------------------------------------------------
-Lx = 7         # x len
-Ly = 5         # x len
+Lx = 12.8         # x len
+Ly = 12.8         # x len
 dx = dy = 0.05        # Every 0.2m
 nx = int(Lx/dx)
 ny = int(Ly/dy)     # number of steps

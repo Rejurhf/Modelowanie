@@ -20,9 +20,13 @@ def saveArrayToJSON(filename, name, array):
         tmp_dict = {}
     else:
         tmp_dict = json.loads(json_str)
-    tmp_dict[name] = array.tolist()
-    fw.write(json.dumps(tmp_dict, indent=2))
 
+    if isinstance(array,(list,)):
+        tmp_dict[name] = array
+    else:
+        tmp_dict[name] = array.tolist()
+
+    fw.write(json.dumps(tmp_dict))
     fw.close()
 
 def printJSON(filename):
