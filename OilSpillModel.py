@@ -143,11 +143,6 @@ ny = int(Ly/dy)     # number of steps
 m = np.zeros((ny, nx))
 # land test:
 l = getArrayFromJSON("maps", "zatoka2")
-# l = np.ones((ny, nx))
-# l = l * (-1)
-# for i in range(25, 30):
-#     for j in range(30, 35):
-#         l[i][j] = 0
 
 u = np.zeros((ny, nx))   # velocity moving in x direction advection
 u[:, :] = 0.5
@@ -170,7 +165,7 @@ ax = fig.add_subplot(111, autoscale_on=False,
 
 line = ax.imshow(layer1.update(), animated=True)
 img = mpimg.imread('res/zatoka_256.png')  # get image of coast
-img = np.flipud(img)
+img = np.flipud(img)    # had to be fliped other case it is up side down
 image = ax.imshow(img)
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 fig.colorbar(line, ax=ax)
