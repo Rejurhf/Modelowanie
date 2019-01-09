@@ -19,11 +19,17 @@ class Layer:
                  dy,
                  dt):
 
-        self.mass = np.asarray(mass, dtype='float')             # main array of sipll
-        self.land = np.asarray(land, dtype='float')             # array of land (value of -1 means water 0 means land and positive value means mass of shoreline deposition)
-        self.velocity_x = np.asarray(velocity_x, dtype='float') # velocity moving in y direction
-        self.velocity_y = np.asarray(velocity_y, dtype='float') # velocity moving in x direction
-        self.diffusion = np.asarray(diffusion, dtype='float')   # array of Diffusion
+        # main array of sipll
+        self.mass = np.asarray(mass, dtype='float')
+        # array of land (value of -1 means water 0 means land and
+        # positive value means mass of shoreline deposition)
+        self.land = np.asarray(land, dtype='float')
+        # velocity moving in y direction
+        self.velocity_x = np.asarray(velocity_x, dtype='float')
+        # velocity moving in x direction
+        self.velocity_y = np.asarray(velocity_y, dtype='float')
+        # array of Diffusion
+        self.diffusion = np.asarray(diffusion, dtype='float')
         self.dx = dx
         self.dy = dy
         self.dt = dt
@@ -55,24 +61,38 @@ class Layer:
             for j in range(1, len(current_mass[0])-1):
 
                 A = D = 0
-                if self.land[i][j] < 0 and self.land[i+1][j] >= 0 and self.land[i-1][j] >= 0 and self.land[i][j+1] < 0 and self.land[i][j-1] < 0:
+                if self.land[i][j] < 0 and self.land[i+1][j] >= 0 and \
+                        self.land[i-1][j] >= 0 and self.land[i][j+1] < 0 and \
+                        self.land[i][j-1] < 0:
                     # Advection term
-                    A = self.velocity_x[i][j] * (current_mass[i][j+1] - current_mass[i][j-1])/(2*self.dy)
+                    A = self.velocity_x[i][j] * \
+                        (current_mass[i][j+1] - current_mass[i][j-1])/(2*self.dy)
                     # Diffusion term
-                    D = self.diffusion[i][j] * (current_mass[i][j+1] - 2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2
-                elif self.land[i][j] < 0 and self.land[i+1][j] < 0 and self.land[i-1][j] < 0 and self.land[i][j+1] >= 0 and self.land[i][j-1] >= 0:
+                    D = self.diffusion[i][j] * (current_mass[i][j+1] - \
+                        2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2
+                elif self.land[i][j] < 0 and self.land[i+1][j] < 0 and \
+                        self.land[i-1][j] < 0 and self.land[i][j+1] >= 0 and \
+                        self.land[i][j-1] >= 0:
                     # Advection term
-                    A = self.velocity_y[i][j] * (current_mass[i+1][j] - current_mass[i-1][j])/(2*self.dx)
+                    A = self.velocity_y[i][j] * \
+                        (current_mass[i+1][j] - current_mass[i-1][j])/(2*self.dx)
                     # Diffusion term
-                    D = self.diffusion[i][j] * (current_mass[i+1][j] - 2*current_mass[i][j] + current_mass[i-1][j])/self.dx**2
+                    D = self.diffusion[i][j] * (current_mass[i+1][j] - \
+                        2*current_mass[i][j] + current_mass[i-1][j])/self.dx**2
 
-                elif self.land[i][j] < 0:# and self.land[i+1][j] < 0 and self.land[i-1][j] < 0 and self.land[i][j+1] < 0 and self.land[i][j-1] < 0:
+                elif self.land[i][j] < 0:
+                        # and self.land[i+1][j] < 0 and self.land[i-1][j] < 0 and
+                        # self.land[i][j+1] < 0 and self.land[i][j-1] < 0:
                     # Advection term
-                    A = self.velocity_y[i][j] * (current_mass[i+1][j] - current_mass[i-1][j])/(2*self.dx) + \
-                        self.velocity_x[i][j] * (current_mass[i][j+1] - current_mass[i][j-1])/(2*self.dy)
+                    A = self.velocity_y[i][j] * (current_mass[i+1][j] - \
+                        current_mass[i-1][j])/(2*self.dx) + \
+                        self.velocity_x[i][j] * (current_mass[i][j+1] - \
+                        current_mass[i][j-1])/(2*self.dy)
                     # Diffusion term
-                    D = self.diffusion[i][j] * (current_mass[i+1][j] - 2*current_mass[i][j] + current_mass[i-1][j])/self.dx**2 + \
-                        (self.diffusion[i][j] * (current_mass[i][j+1] - 2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2)
+                    D = self.diffusion[i][j] * (current_mass[i+1][j] - \
+                        2*current_mass[i][j] + current_mass[i-1][j])/self.dx**2 + \
+                        (self.diffusion[i][j] * (current_mass[i][j+1] - \
+                        2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2)
 
                 # # Euler's Method
                 next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D)
@@ -181,6 +201,7 @@ animate(0)
 t1 = time()
 interval = 500 * dt - (t1 - t0)
 
-ani = animation.FuncAnimation(fig, animate, frames=300, interval=interval, blit=True, init_func=init)
+ani = animation.FuncAnimation(
+    fig, animate, frames=300, interval=interval, blit=True, init_func=init)
 
 plt.show()
