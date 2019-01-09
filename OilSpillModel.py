@@ -3,9 +3,10 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import scipy.integrate as integrate
 import matplotlib.animation as animation
-
+from filecontroller import getArrayFromJSON
 
 class Layer:
 
@@ -18,7 +19,6 @@ class Layer:
                  dx,
                  dy,
                  dt):
-
         # main array of sipll
         self.mass = np.asarray(mass, dtype='float')
         # array of land (value of -1 means water 0 means land and
@@ -38,7 +38,6 @@ class Layer:
         self.shorelineConst = 0.2
         self.maximumShorelineDeposition = 20
 
-
     def update(self):
 
         current_mass = self.mass    # array of mass in t
@@ -52,8 +51,8 @@ class Layer:
 
         # spilling oil
         if self.time_elapsed < 1:
-            for m in range(15, 20):
-                for n in range(5, 10):
+            for m in range(20, 30):
+                for n in range(140, 150):
                     next_mass[m,n] += 50
 
         # calculate oil spill
@@ -130,7 +129,6 @@ class Layer:
 
         return tmp
 
-
     def step(self):
         self.time_elapsed += self.dt
 
@@ -144,11 +142,12 @@ nx = int(Lx/dx)
 ny = int(Ly/dy)     # number of steps
 m = np.zeros((ny, nx))
 # land test:
-l = np.ones((ny, nx))
-l = l * (-1)
-for i in range(25, 30):
-    for j in range(30, 35):
-        l[i][j] = 0
+l = getArrayFromJSON("maps", "zatoka2")
+# l = np.ones((ny, nx))
+# l = l * (-1)
+# for i in range(25, 30):
+#     for j in range(30, 35):
+#         l[i][j] = 0
 
 u = np.zeros((ny, nx))   # velocity moving in x direction advection
 u[:, :] = 0.5
@@ -170,28 +169,29 @@ ax = fig.add_subplot(111, autoscale_on=False,
                      xlim=(0, nx-1), ylim=(0, ny-1))
 
 line = ax.imshow(layer1.update(), animated=True)
+img = mpimg.imread('res/zatoka_256.png')  # get image of coast
+img = np.flipud(img)
+image = ax.imshow(img)
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
-energy_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)
 fig.colorbar(line, ax=ax)
 
 def init():
     """initialize animation"""
-    global layer1, dt
+    global layer1, dt, image
+    image.set_array(img)
     line.set_array(layer1.update())
     time_text.set_text('')
-    energy_text.set_text('')
-    return line, time_text, energy_text
+    return line, image, time_text
 
 
 def animate(*i):
     """perform animation step"""
-    global layer1, dt
+    global layer1, dt, image, img
     layer1.step()
-
+    image.set_array(img)
     line.set_array(layer1.update())
     time_text.set_text('time = %.1f' % layer1.time_elapsed)
-    energy_text.set_text('Position X = f')
-    return line, time_text, energy_text
+    return line, image, time_text
 
 
 # choose the interval based on dt and the time to animate one step
