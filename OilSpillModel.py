@@ -145,13 +145,14 @@ layer1 = Layer(m, l, u, K, v, dx, dy, dt)
 #------------------------------------------------------------
 # set up figure and animation
 fig = plt.figure()
+
 ax = fig.add_subplot(111, autoscale_on=False,
                      xlim=(0, nx-1), ylim=(0, ny-1))
 
 line = ax.imshow(layer1.update(), animated=True)
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 energy_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)
-
+fig.colorbar(line, ax=ax)
 
 def init():
     """initialize animation"""
