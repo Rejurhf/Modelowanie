@@ -11,7 +11,7 @@ current = np.empty((rowmax,colmax),object)    # array with current
 array = np.zeros((rowmax,colmax)) # init array with shema of current
 
 try:
-    im = Image.open("img8x8t2.png")   # read image
+    im = Image.open("res/img8x8t2.png")   # read image
     gray = im.convert('L')  # conversion to gray scale
     array = np.asarray(gray)    # conversion to array
 except IOError:
