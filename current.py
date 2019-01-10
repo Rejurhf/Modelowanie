@@ -140,11 +140,13 @@ for i in range (0, 10):
                     for ri in range(-1,2):   # get informations about neightboars
                         for ci in range(-1,2):
                             if current[r+ri,c+ci] != (0.,0.) \
-                                    and current[r+ri,c+ci] is not None:
+                                    and current[r+ri,c+ci] is not None and (current[r+ri,c+ci][0] > 1/(i+5) or current[r+ri,c+ci][0] > 1/(i+5)):
                                 # adding tuples and increse counter
                                 sumtuple = \
                                     tuple(map(lambda x, y: x + y, sumtuple, current[r+ri,c+ci]))
                                 counter += 1
+
+
             if counter != 0:
                 sumtuple = tuple([round(z/(counter*1.01),2) for z in sumtuple])
                 if not (np.abs(sumtuple[0]) < 0.01 and np.abs(sumtuple[1]) < 0.01):
