@@ -3,6 +3,7 @@
 
 import numpy as np
 from PIL import Image
+from filecontroller import saveArrayOfTuplesToJSON
 
 rowmax = colmax = 8
 tovisitqueue = [] # que of pixels to visit
@@ -153,5 +154,7 @@ for r in range(0,rowmax):
     for c in range(colmax):
         if current[r,c] is None:
             current[r,c] = (0.,0.)
+
+saveArrayOfTuplesToJSON("updown", "leftright", "test", "test", current)
 
 print(current)
