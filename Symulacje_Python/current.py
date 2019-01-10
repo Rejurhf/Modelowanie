@@ -149,4 +149,9 @@ for i in range (0, 4):
                 if not (np.abs(sumtuple[0]) < 0.05 and np.abs(sumtuple[1]) < 0.05):
                     current[r,c] = sumtuple
 
+for r in range(0,rowmax):
+    for c in range(colmax):
+        if current[r,c] is None:
+            current[r,c] = (0.,0.)
+
 print(current)
