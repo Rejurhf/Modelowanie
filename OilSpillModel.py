@@ -51,8 +51,8 @@ class Layer:
 
         # spilling oil
         if self.time_elapsed < 1:
-            for m in range(20, 30):
-                for n in range(140, 150):
+            for m in range(0, 100):
+                for n in range(70, 80):
                     next_mass[m,n] += 50
 
         # calculate oil spill
@@ -144,14 +144,19 @@ m = np.zeros((ny, nx))
 # land test:
 l = getArrayFromJSON("maps", "zatoka2")
 
-u = np.zeros((ny, nx))   # velocity moving in x direction advection
-u[:, :] = 0.5
 K = np.zeros((ny, nx))   # array of Diffusion
 K[:, :] = 0.01
-v = np.zeros((ny, nx))   # velocity moving in y direction advection
-for i in range(ny):
-    for j in range(nx):
-        v[i, j] = (0.1 + 0.001*(i-Ly) + np.sin(np.pi*j/Lx)/4)
+
+u = getArrayFromJSON("leftright", "zatoka")
+v = getArrayFromJSON("updown", "zatoka")
+u *= 100
+v *= 100
+# u = np.zeros((ny, nx))   # velocity moving in x direction advection
+# u[:, :] = 0.5
+# v = np.zeros((ny, nx))   # velocity moving in y direction advection
+# for i in range(ny):
+#     for j in range(nx):
+#         v[i, j] = (0.1 + 0.001*(i-Ly) + np.sin(np.pi*j/Lx)/4)
 
 # set up initial state and global variables
 layer1 = Layer(m, l, u, K, v, dx, dy, dt)

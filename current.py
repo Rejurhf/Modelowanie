@@ -5,20 +5,20 @@ import numpy as np
 from PIL import Image
 from filecontroller import saveArrayOfTuplesToJSON
 
-rowmax = colmax = 8
+rowmax = colmax = 256
 tovisitqueue = [] # que of pixels to visit
 
 current = np.empty((rowmax,colmax),object)    # array with current
 array = np.zeros((rowmax,colmax)) # init array with shema of current
 
 try:
-    im = Image.open("res/img8x8t2.png")   # read image
+    im = Image.open("res/zatoka_current.png")   # read image
     gray = im.convert('L')  # conversion to gray scale
     array = np.asarray(gray)    # conversion to array
 except IOError:
     print("cannot create image")
 
-array = np.where(array == 0, 254, array)    # repleacing all 0 with 254
+array = np.where(array == 155, 254, array)    # repleacing all 155(orange) with 254
 array = np.where(array == 255, 0, array)
 redlist = list(zip(*np.where(array == 91)))    # geting tuple of red dot
 greenlist = list(zip(*np.where(array == 122)))   # geting tuple of green dot
@@ -64,8 +64,8 @@ for red, green in zip(redlist, greenlist):   # comment this line if got only one
                 current[green[0], green[1]] = (rowtoadd/np.abs(rowtoadd), 0.)
         else:
             current[green[0], green[1]] = \
-                (round(((rowtoadd/(rowtoadd+coltoadd))/(2**(1/2))),2), \
-                round(((coltoadd/(rowtoadd+coltoadd))/(2**(1/2))),2))
+                (round(((rowtoadd/(np.abs(rowtoadd)+np.abs(coltoadd)))/(2**(1/2))),2), \
+                round(((coltoadd/(np.abs(rowtoadd)+np.abs(coltoadd)))/(2**(1/2))),2))
 
 print(tovisitqueue)
 #--------------------------------------------------------------------------
@@ -119,7 +119,7 @@ while len(tovisitqueue) > 0:
 
 #--------------------------------------------------------------------------
 # spred influence of current
-for i in range (0, 4):
+for i in range (0, 10):
     for r in range(0, rowmax):
         for c in range(0, colmax):
             sumtuple = (0.,0.)  # tuple with sum speed
@@ -146,8 +146,8 @@ for i in range (0, 4):
                                     tuple(map(lambda x, y: x + y, sumtuple, current[r+ri,c+ci]))
                                 counter += 1
             if counter != 0:
-                sumtuple = tuple([round(z/(counter*2),2) for z in sumtuple])
-                if not (np.abs(sumtuple[0]) < 0.05 and np.abs(sumtuple[1]) < 0.05):
+                sumtuple = tuple([round(z/(counter*1.01),2) for z in sumtuple])
+                if not (np.abs(sumtuple[0]) < 0.01 and np.abs(sumtuple[1]) < 0.01):
                     current[r,c] = sumtuple
 
 for r in range(0,rowmax):
@@ -155,6 +155,8 @@ for r in range(0,rowmax):
         if current[r,c] is None:
             current[r,c] = (0.,0.)
 
-saveArrayOfTuplesToJSON("updown", "leftright", "test", "test", current)
+current = np.flipud(current)
 
-print(current)
+saveArrayOfTuplesToJSON("updown", "leftright", "zatoka", "zatoka", current)
+
+# print(current)

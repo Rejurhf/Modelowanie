@@ -7,7 +7,7 @@ import numpy as np
 
 size = 256, 256
 try:
-    im = Image.open("zatokabw.png") # read image
+    im = Image.open("res/zatokabw.png") # read image
     im = im.resize(size, Image.ANTIALIAS)   # resize image to size
     gray = im.convert('L')  # conversion to gray scale
     bw = gray.point(lambda x: 0 if x<209 else 255, '1')  # binarization 0 and 255
