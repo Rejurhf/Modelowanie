@@ -29,7 +29,7 @@ class Layer:
         # velocity moving in x direction
         self.velocity_y = np.asarray(velocity_y, dtype='float')
         # array of Diffusion
-        self.diffusion = np.asarray(diffusion, dtype='float')
+        self.diffusion = diffusion
         self.dx = dx
         self.dy = dy
         self.dt = dt
@@ -51,8 +51,8 @@ class Layer:
 
         # spilling oil
         if self.time_elapsed < 1:
-            for m in range(0, 100):
-                for n in range(70, 80):
+            for m in range(20, 30):
+                for n in range(0, 150):
                     next_mass[m,n] += 50
 
         # calculate oil spill
@@ -67,7 +67,7 @@ class Layer:
                     A = self.velocity_x[i][j] * \
                         (current_mass[i][j+1] - current_mass[i][j-1])/(2*self.dy)
                     # Diffusion term
-                    D = self.diffusion[i][j] * (current_mass[i][j+1] - \
+                    D = self.diffusion * (current_mass[i][j+1] - \
                         2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2
                 elif self.land[i][j] < 0 and self.land[i+1][j] < 0 and \
                         self.land[i-1][j] < 0 and self.land[i][j+1] >= 0 and \
@@ -76,7 +76,7 @@ class Layer:
                     A = self.velocity_y[i][j] * \
                         (current_mass[i+1][j] - current_mass[i-1][j])/(2*self.dx)
                     # Diffusion term
-                    D = self.diffusion[i][j] * (current_mass[i+1][j] - \
+                    D = self.diffusion * (current_mass[i+1][j] - \
                         2*current_mass[i][j] + current_mass[i-1][j])/self.dx**2
 
                 elif self.land[i][j] < 0:
@@ -88,9 +88,9 @@ class Layer:
                         self.velocity_x[i][j] * (current_mass[i][j+1] - \
                         current_mass[i][j-1])/(2*self.dy)
                     # Diffusion term
-                    D = self.diffusion[i][j] * (current_mass[i+1][j] - \
+                    D = self.diffusion * (current_mass[i+1][j] - \
                         2*current_mass[i][j] + current_mass[i-1][j])/self.dx**2 + \
-                        (self.diffusion[i][j] * (current_mass[i][j+1] - \
+                        (self.diffusion * (current_mass[i][j+1] - \
                         2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2)
 
                 # # Euler's Method
@@ -144,8 +144,7 @@ m = np.zeros((ny, nx))
 # land test:
 l = getArrayFromJSON("maps", "zatoka2")
 
-K = np.zeros((ny, nx))   # array of Diffusion
-K[:, :] = 0.01
+K = 0.001    # Diffusion constant
 
 u = getArrayFromJSON("leftright", "zatoka")
 v = getArrayFromJSON("updown", "zatoka")
