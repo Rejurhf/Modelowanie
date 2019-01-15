@@ -51,8 +51,8 @@ class Layer:
 
         # spilling oil
         if self.time_elapsed < 1:
-            for m in range(20, 30):
-                for n in range(0, 150):
+            for m in range(90, 100):
+                for n in range(70, 80):
                     next_mass[m,n] += 50
 
         # calculate oil spill
@@ -96,7 +96,10 @@ class Layer:
                 # # Euler's Method
                 next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D)
                 if next_mass[i][j] < 0:
-                    next_mass[i][j]=np.abs(next_mass[i][j])
+                    next_mass[i][j] = np.abs(next_mass[i][j])
+                if next_mass[i][j] < 0.1:
+                    next_mass[i][j] = 0
+
 
         # shoreline deposition
         for i in range(1, len(next_mass)-1):
@@ -144,10 +147,10 @@ m = np.zeros((ny, nx))
 # land test:
 l = getArrayFromJSON("maps", "zatoka2")
 
-K = 0.001    # Diffusion constant
+K = 0.01    # Diffusion constant
 
-u = getArrayFromJSON("leftright", "zatoka")
-v = getArrayFromJSON("updown", "zatoka")
+u = getArrayFromJSON("leftright", "zatokatest")
+v = getArrayFromJSON("updown", "zatokatest")
 u *= 100
 v *= 100
 # u = np.zeros((ny, nx))   # velocity moving in x direction advection

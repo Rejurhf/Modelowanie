@@ -6,7 +6,7 @@ from PIL import Image
 from filecontroller import saveArrayOfTuplesToJSON
 
 try:
-    im = Image.open("res/img8x8.png")   # read image
+    im = Image.open("res/zatoka_current.png")   # read image
 except IOError:
     print("cannot create image")
 
@@ -122,7 +122,7 @@ while len(tovisitqueue) > 0:
 toVisitCurr = redlist[:]    # get visiting starting position
 visitedCurr = []            # list with visited points
 # spred influence of current
-for i in range(0, 3):
+for i in range(0, 10):
     # find places to visit
     neighbors = [(0,-1), (0,1), (-1, 0), (1,0)]
     tmpToVisit = []     # tmp list of positions to visit in next iteration
@@ -157,52 +157,21 @@ for i in range(0, 3):
                     sumtuple = tuple([round(z/(counter*1.1),2) for z in sumtuple])
                     if not (np.abs(sumtuple[0]) < 0.01 and np.abs(sumtuple[1]) < 0.01):
                         current[row,col] = sumtuple
-                        tmpToVisit.append((row, col))   # add to visit list in next iteration
+                        if (row,col) not in visitedCurr and (row,col) not in toVisitCurr and \
+                                (row,col) not in tmpToVisit:
+                            tmpToVisit.append((row, col))   # add to visit list in next iteration
             # if point has a value and was not visited add to visit list
-            elif (row, col) not in visitedCurr:
+            elif (row,col) not in visitedCurr and (row,col) not in toVisitCurr and \
+                    (row,col) not in tmpToVisit:
                 toVisitCurr.append((row, col))
+
     toVisitCurr = tmpToVisit    # save visit list in next iteration
-
-# for i in range (0, 10):
-#     for r in range(0, rowmax):
-#         for c in range(0, colmax):
-#             sumtuple = (0.,0.)  # tuple with sum speed
-#             counter = 0   # count of added tuples
-#
-#             if current[r,c] is None or current[r,c] == (0.,0.):
-#                 if r == rowmax - 1 or c == colmax - 1 or r == 0 or c == 0:
-#                     for ri in range(-1,2):   # get informations about neightboars
-#                         for ci in range(-1,2):
-#                             if r+ri >= 0 and c+ci >= 0 and r+ri < rowmax \
-#                                     and c+ci < colmax and current[r+ri,c+ci] != (0.,0.) \
-#                                     and current[r+ri,c+ci] is not None:
-#                                 # adding tuples and increse counter
-#                                 sumtuple = \
-#                                     tuple(map(lambda x, y: x + y, sumtuple, current[r+ri,c+ci]))
-#                                 counter += 1
-#                 else:
-#                     for ri in range(-1,2):   # get informations about neightboars
-#                         for ci in range(-1,2):
-#                             if current[r+ri,c+ci] != (0.,0.) \
-#                                     and current[r+ri,c+ci] is not None and (current[r+ri,c+ci][0] > 1/(i+5) or current[r+ri,c+ci][0] > 1/(i+5)):
-#                                 # adding tuples and increse counter
-#                                 sumtuple = \
-#                                     tuple(map(lambda x, y: x + y, sumtuple, current[r+ri,c+ci]))
-#                                 counter += 1
-#
-#
-#             if counter != 0:
-#                 sumtuple = tuple([round(z/(counter*1.01),2) for z in sumtuple])
-#                 if not (np.abs(sumtuple[0]) < 0.01 and np.abs(sumtuple[1]) < 0.01):
-#                     current[r,c] = sumtuple
-
-print(current)
 
 for r in range(0,rowmax):
     for c in range(colmax):
         if current[r,c] is None:
             current[r,c] = (0.,0.)
 
-saveArrayOfTuplesToJSON("updown", "leftright", "zatoka", "zatoka", current)
+saveArrayOfTuplesToJSON("updown", "leftright", "zatokatest", "zatokatest", current)
 
 # print(current)
