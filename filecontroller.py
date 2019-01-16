@@ -66,7 +66,7 @@ def printJSON(filename):
         f.close()
 
 def getArrayFromJSON(filename, arrayname):
-    ''' Get array grom file
+    ''' Get array from file
         filename - file with arrays;
         name - key in the dict, specyfiing which array to get
      '''
@@ -90,6 +90,24 @@ def deleteFile(filename):
     else:
         print("File does not exist")
 
+def getArrayNamesFromJSON(filename):
+    ''' Get array names from file
+        filename - file with arrays;
+     '''
+    if filename[-5:] != ".json":
+        filename += ".json"
+
+    if os.path.exists("res/" + filename):
+        f = open("res/" + filename, "r")
+        json_str = f.read()
+        f.close()
+
+        tmp_dict = json.loads(json_str)
+        # if array with kay == arrayname exists return it
+        keys = list(tmp_dict.keys())
+        keys.sort()
+        return keys
+    return [] # else return empty list
 # ------------------------------------------------------------
 # deleteFile("test.json")
 # K = np.zeros((5,5))
