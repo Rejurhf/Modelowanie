@@ -1,6 +1,5 @@
 # Rejurhf
 # 8.01.2019
-# test
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,6 +7,8 @@ import matplotlib.image as mpimg
 import scipy.integrate as integrate
 import matplotlib.animation as animation
 from filecontroller import getArrayFromJSON
+
+land_array = []
 
 class Layer:
 
@@ -36,7 +37,7 @@ class Layer:
         self.dt = dt
         self.time_elapsed = 0
 
-        self.shorelineConst = 0.2
+        self.shorelineConst = 0.15
         self.maximumShorelineDeposition = 20
 
     def update(self):
@@ -123,12 +124,15 @@ class Layer:
 
         # do wyswietlania:
         tmp = np.zeros((len(current_mass), len(current_mass[0])))
+        land_sum = 0.0
         for i in range(1, len(current_mass)-1):
             for j in range(1, len(current_mass[0])-1):
                 if self.land[i][j] < 0:
                     tmp[i][j] = next_mass[i][j]
                 else:
                     tmp[i][j] = self.land[i][j]
+                    land_sum += self.land[i][j]
+        land_array.append(land_sum)
 
 
         return tmp
@@ -207,4 +211,10 @@ interval = 500 * dt - (t1 - t0)
 ani = animation.FuncAnimation(
     fig, animate, frames=300, interval=interval, blit=True, init_func=init)
 
+plt.show()
+
+
+plt.plot(land_array)
+plt.ylabel('masa ropy osadzona na brzegu')
+plt.xlabel('czas')
 plt.show()
