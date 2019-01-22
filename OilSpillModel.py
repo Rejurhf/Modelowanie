@@ -66,7 +66,6 @@ class Layer:
         # calculate oil spill
         for i in range(1, len(current_mass)-1):
             for j in range(1, len(current_mass[0])-1):
-
                 A = D = 0
                 if self.land[i][j] < 0 and self.land[i+1][j] >= 0 and \
                         self.land[i-1][j] >= 0 and self.land[i][j+1] < 0 and \
@@ -102,8 +101,8 @@ class Layer:
                         2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2)
 
                 # # Euler's Method
-                evaporated = current_mass[i][j]*evaporation_rate*time_step*temperature
-                next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D) - evaporated
+                evaporated = current_mass[i][j]*evaporation_rate*temperature*time_step
+                next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D) #- evaporated
                 evaporated_sum += evaporated
                 if next_mass[i][j] < 0:
                     next_mass[i][j] = np.abs(next_mass[i][j])
@@ -165,8 +164,8 @@ K = 0.01    # Diffusion constant
 
 u = getArrayFromJSON("leftright", "zatokatest")
 v = getArrayFromJSON("updown", "zatokatest")
-u *= 100
-v *= 100
+u *= 300
+v *= 300
 # u = np.zeros((ny, nx))   # velocity moving in x direction advection
 # u[:, :] = 0.5
 # v = np.zeros((ny, nx))   # velocity moving in y direction advection
