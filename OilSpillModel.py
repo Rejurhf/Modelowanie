@@ -88,7 +88,7 @@ class Layer:
                         self.evapPrc = ((evaporation_rate + 0.045*(temperature-15))*np.log(self.time_elapsed*60))/2.5
 
                         totalMass = next_mass[i][j]/evapPrcPrv  # Calculate total mass without evaporation
-                        if self.evapPrc <= 0:
+                        if self.evapPrc <= 0:   # in case devision by 0
                             self.evapPrc = 0.0000001
                         next_mass[i][j] -= next_mass[i][j]*(self.evapPrc-evapPrcPrv)    # substract
 
