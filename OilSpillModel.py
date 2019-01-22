@@ -66,29 +66,8 @@ class Layer:
         # calculate oil spill
         for i in range(1, len(current_mass)-1):
             for j in range(1, len(current_mass[0])-1):
-                A = D = 0
-                if self.land[i][j] < 0 and self.land[i+1][j] >= 0 and \
-                        self.land[i-1][j] >= 0 and self.land[i][j+1] < 0 and \
-                        self.land[i][j-1] < 0:
-                    # Advection term
-                    A = self.velocity_x[i][j] * \
-                        (current_mass[i][j+1] - current_mass[i][j-1])/(2*self.dy)
-                    # Diffusion term
-                    D = self.diffusion * (current_mass[i][j+1] - \
-                        2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2
-                elif self.land[i][j] < 0 and self.land[i+1][j] < 0 and \
-                        self.land[i-1][j] < 0 and self.land[i][j+1] >= 0 and \
-                        self.land[i][j-1] >= 0:
-                    # Advection term
-                    A = self.velocity_y[i][j] * \
-                        (current_mass[i+1][j] - current_mass[i-1][j])/(2*self.dx)
-                    # Diffusion term
-                    D = self.diffusion * (current_mass[i+1][j] - \
-                        2*current_mass[i][j] + current_mass[i-1][j])/self.dx**2
 
-                elif self.land[i][j] < 0:
-                        # and self.land[i+1][j] < 0 and self.land[i-1][j] < 0 and
-                        # self.land[i][j+1] < 0 and self.land[i][j-1] < 0:
+                if self.land[i][j] < 0:
                     # Advection term
                     A = self.velocity_y[i][j] * (current_mass[i+1][j] - \
                         current_mass[i-1][j])/(2*self.dx) + \
@@ -101,13 +80,14 @@ class Layer:
                         2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2)
 
                 # # Euler's Method
-                evaporated = current_mass[i][j]*evaporation_rate*temperature*time_step
-                next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D) #- evaporated
-                evaporated_sum += evaporated
-                if next_mass[i][j] < 0:
-                    next_mass[i][j] = np.abs(next_mass[i][j])
-                if next_mass[i][j] < 0.1:
-                    next_mass[i][j] = 0
+                    evaporated = current_mass[i][j]*evaporation_rate*time_step*temperature
+
+                    next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D) #- evaporated
+                    evaporated_sum += evaporated
+                    if next_mass[i][j] < 0:
+                        next_mass[i][j] = np.abs(next_mass[i][j])
+                    if next_mass[i][j] < 0.1:
+                        next_mass[i][j] = 0
 
 
         # shoreline deposition
