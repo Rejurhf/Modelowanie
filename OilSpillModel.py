@@ -44,12 +44,12 @@ class Layer:
 
         self.shorelineConst = 0.15
         self.maximumShorelineDeposition = 12
+        self.evapPrc = 0.0000001
 
     def update(self):
 
         current_mass = self.mass    # array of mass in t
         next_mass = current_mass    # array of mass in t+1
-        evaporated_sum = 0
 
         # managing edges of array edge pixel is equal to neighbor pixel
         next_mass[:, 0] = next_mass[:, 1]
@@ -79,11 +79,19 @@ class Layer:
                         (self.diffusion * (current_mass[i][j+1] - \
                         2*current_mass[i][j] + current_mass[i][j-1])/self.dy**2)
 
-                # # Euler's Method
-                    evaporated = current_mass[i][j]*evaporation_rate*time_step*temperature
+                    # Euler's Method
+                    next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D)
 
-                    next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D) #- evaporated
-                    evaporated_sum += evaporated
+                    # calculate evaporated percent
+                    if self.time_elapsed > 0.02:
+                        evapPrcPrv = self.evapPrc
+                        self.evapPrc = ((evaporation_rate + 0.045*(temperature-15))*np.log(self.time_elapsed*60))/2.5
+
+                        totalMass = next_mass[i][j]/evapPrcPrv  # Calculate total mass without evaporation
+                        if self.evapPrc <= 0:
+                            self.evapPrc = 0.0000001
+                        next_mass[i][j] -= next_mass[i][j]*(self.evapPrc-evapPrcPrv)    # substract
+
                     if next_mass[i][j] < 0:
                         next_mass[i][j] = np.abs(next_mass[i][j])
                     if next_mass[i][j] < 0.1:
@@ -120,13 +128,13 @@ class Layer:
                     tmp[i][j] = self.land[i][j]
                     land_sum += self.land[i][j]
         land_array.append(land_sum)
-        evaporation_array.append(evaporated_sum)
+        evaporation_array.append(self.evapPrc)
 
 
         return tmp
 
-    def step(self):
-        self.time_elapsed += self.dt
+    def step(self, dt):
+        self.time_elapsed += dt
 
 
 #------------------------------------------------------------
@@ -182,7 +190,7 @@ def init():
 def animate(*i):
     """perform animation step"""
     global layer1, dt, image, img
-    layer1.step()
+    layer1.step(dt)
     image.set_array(img)
     line.set_array(layer1.update())
     time_text.set_text('time = %.1f' % layer1.time_elapsed)
@@ -207,10 +215,10 @@ plt.ylabel('masa ropy osadzona na brzegu')
 plt.xlabel('krok czasowy')
 plt.show()
 
-i = 1
-while i < len(evaporation_array):
-    evaporation_array[i] += evaporation_array[i-1]
-    i = i+1
+# i = 1
+# while i < len(evaporation_array):
+#     evaporation_array[i] += evaporation_array[i-1]
+#     i = i+1
 
 #plt.figure(2)
 plt.plot(evaporation_array)

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import scipy.integrate as integrate
 import matplotlib.animation as animation
 
+evaporation_array = []
 class Burgers2D:
     """Burgers"""
     def __init__(self,
@@ -56,6 +57,7 @@ class Burgers2D:
                     Cnn[i][j]=np.abs(Cnn[i][j]);
 
         self.C = Cnn
+        evaporation_array.append(self.time_elapsed)
         return self.C
 
     def step(self, dt):
@@ -121,4 +123,9 @@ interval = 500 * dt - (t1 - t0)
 ani = animation.FuncAnimation(fig, animate, frames=300,
     interval=interval, blit=True, init_func=init)
 
+plt.show()
+
+plt.plot(evaporation_array)
+plt.ylabel('masa ropy odparowana')
+plt.xlabel('krok czasowy')
 plt.show()
