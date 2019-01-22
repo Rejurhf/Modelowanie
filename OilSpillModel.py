@@ -7,10 +7,10 @@ import matplotlib.image as mpimg
 import scipy.integrate as integrate
 import matplotlib.animation as animation
 from filecontroller import getArrayFromJSON
+from menu import choserArray, choserTemperature
 
 land_array = []
 evaporation_rate = 0.00002
-temperature = 20
 time_step = 10
 
 spill_area_array = []
@@ -30,7 +30,8 @@ class Layer:
                  dy,
                  dt,
                  vertical_dispersion,
-                 layer_number):
+                 layer_number,
+                 temperature = 20):
         # main array of spill
         self.mass = np.asarray(mass, dtype='float')
         # array of land (value of -1 means water 0 means land and
@@ -48,6 +49,7 @@ class Layer:
         self.vertical_dispersion = vertical_dispersion
         self.layer_number = layer_number
         self.time_elapsed = 0
+        self.temperature = temperature
 
         self.shorelineConst = 0.15
         self.maximumShorelineDeposition = 12
@@ -111,7 +113,7 @@ class Layer:
                     # calculate evaporated percent
                     if self.time_elapsed > 0.02 and self.layer_number == 1:
                         evapPrcPrv = self.evapPrc
-                        self.evapPrc = ((evaporation_rate + 0.045*(temperature-15))*np.log(self.time_elapsed*60))/2.5
+                        self.evapPrc = ((evaporation_rate + 0.045*(self.temperature-15))*np.log(self.time_elapsed*60))/2.5
 
                         totalMass = next_mass[i][j]/evapPrcPrv  # Calculate total mass without evaporation
                         if self.evapPrc <= 0:   # in case devision by 0
@@ -155,8 +157,9 @@ class Layer:
                     tmp[i][j] = self.land[i][j]
                     land_sum += self.land[i][j]
         land_array.append(land_sum)
-        evaporation_array.append(self.evapPrc)
-        spill_area_array.append((self.ifSpilledArray == 1).sum())
+        if self.layer_number == 1:
+            evaporation_array.append(self.evapPrc)
+            spill_area_array.append((self.ifSpilledArray == 1).sum())
 
         if self.layer_number == 1:
             for i in range(1, len(next_mass)-1):
@@ -182,14 +185,26 @@ dx = dy = 0.05        # Every 0.2m
 dt = 1./30 # 30 fps
 nx = int(Lx/dx)
 ny = int(Ly/dy)     # number of steps
-# land test:
-l = getArrayFromJSON("maps", "zatoka2")
-
 K = 0.01    # Diffusion constant
 Rw = 0.01   # Vertical dispersion constant
 
-u = getArrayFromJSON("leftright", "zatokatest")
-v = getArrayFromJSON("updown", "zatokatest")
+# land test:
+name = choserArray("maps", "Wybierz mapę (preferowana zatoka2):")
+if name == "":
+    l = np.zeros((ny, nx))
+else:
+    l = getArrayFromJSON("maps", name)
+
+name = choserArray("leftright", "Wybierz prądy wodne (preferowana zatokatest):")
+if name == "":
+    u = np.zeros((ny, nx))
+    v = np.zeros((ny, nx))
+else:
+    u = getArrayFromJSON("leftright", name)
+    v = getArrayFromJSON("updown", name)
+
+temperature = choserTemperature("Wybierz temperaturę:")
+
 u *= 300
 v *= 300
 # u = np.zeros((ny, nx))   # velocity moving in x direction advection
@@ -201,7 +216,7 @@ v *= 300
 
 # set up initial state and global variables
 m = np.zeros((ny, nx))
-layer1 = Layer(m, l, u, K, v, dx, dy, dt, Rw, 1)
+layer1 = Layer(m, l, u, K, v, dx, dy, dt, Rw, 1, temperature)
 m = np.zeros((ny, nx))
 layer2 = Layer(m, l, u, K, v, dx, dy, dt, Rw, 2)
 m = np.zeros((ny, nx))

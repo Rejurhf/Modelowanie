@@ -3,14 +3,15 @@
 
 from filecontroller import getArrayNamesFromJSON, getArrayFromJSON
 
-def choser(dictionary, informationStr):
+def choserArray(fileName, informationStr):
+    dictionary = getArrayNamesFromJSON(fileName)
     print(informationStr)
     for i in range(0, len(dictionary)):
         print("{} - {}".format(i, dictionary[i]))
     print("{} - Brak".format(len(dictionary)))
 
     chosen = -1
-    while chosen < 0 or chosen > len(maps):
+    while chosen < 0 or chosen > len(dictionary):
         instr = input(">: ")
         if instr.isdigit():
             chosen = int(instr)
@@ -20,11 +21,21 @@ def choser(dictionary, informationStr):
         chosenArrayName = dictionary[chosen]
     return chosenArrayName
 
+def choserTemperature(informationStr):
+    print(informationStr)
 
-maps = getArrayNamesFromJSON("maps")
-chosenMap = choser(maps, "Wybierz mapę: ")
-print(chosenMap)
+    chosen = -1
+    while chosen < 0 or chosen > 50:
+        instr = input(">: ")
+        if instr.isdigit():
+            chosen = int(instr)
 
-currents = getArrayNamesFromJSON("updown")
-chosenCurrent = choser(currents, "Wybierz prądy: ")
-print(chosenCurrent)
+    return chosen
+
+# maps = getArrayNamesFromJSON("maps")
+# chosenMap = choserMenu(maps, "Wybierz mapę: ")
+# print(chosenMap)
+#
+# currents = getArrayNamesFromJSON("updown")
+# chosenCurrent = choserMenu(currents, "Wybierz prądy: ")
+# print(chosenCurrent)
