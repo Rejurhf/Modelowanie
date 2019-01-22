@@ -16,6 +16,8 @@ time_step = 10
 spill_area_array = []
 evaporation_array = []
 
+array1 = array2 = np.zeros((256, 256, 800))
+
 class Layer:
 
     def __init__(self,
@@ -26,8 +28,10 @@ class Layer:
                  velocity_y,    # velocity in Y direction (array)
                  dx,
                  dy,
-                 dt):
-        # main array of sipll
+                 dt,
+                 vertical_dispersion,
+                 layer_number):
+        # main array of spill
         self.mass = np.asarray(mass, dtype='float')
         # array of land (value of -1 means water 0 means land and
         # positive value means mass of shoreline deposition)
@@ -41,13 +45,16 @@ class Layer:
         self.dx = dx
         self.dy = dy
         self.dt = dt
+        self.vertical_dispersion = vertical_dispersion
+        self.layer_number = layer_number
         self.time_elapsed = 0
 
         self.shorelineConst = 0.15
         self.maximumShorelineDeposition = 12
         self.evapPrc = 0.0000001
         self.ifSpilledArray = m = np.zeros((len(self.mass), len(self.mass[0])))
-        self.allmass = 0
+
+        self.iteration = 0
 
     def update(self):
         current_mass = self.mass    # array of mass in t
@@ -60,15 +67,31 @@ class Layer:
         next_mass[-1, :] = next_mass[-2, :]
 
         # spilling oil
-        if self.time_elapsed < 1:
+        if self.time_elapsed < 1 and self.layer_number == 1:
             for m in range(90, 100):
                 for n in range(70, 80):
-                    next_mass[m,n] += 50
-                    self.allmass += 50
+                    next_mass[m,n] += 10
+
+        if 0.5 < self.time_elapsed < 1.5 and self.layer_number == 2:
+            for m in range(90, 100):
+                for n in range(70, 80):
+                    next_mass[m,n] += 0.8
+
+        if 1 < self.time_elapsed < 2 and self.layer_number == 3:
+            for m in range(90, 100):
+                for n in range(70, 80):
+                    next_mass[m,n] += 0.1
 
         # calculate oil spill
         for i in range(1, len(current_mass)-1):
             for j in range(1, len(current_mass[0])-1):
+
+                if self.layer_number == 2 and self.iteration > 0:
+                    current_mass[i][j] += self.vertical_dispersion * array1[i][j][self.iteration-1]
+                    current_mass[i][j] -= self.vertical_dispersion * array2[i][j][self.iteration-1]
+
+                if self.layer_number == 3 and self.iteration > 0:
+                    current_mass[i][j] += self.vertical_dispersion * array2[i][j][self.iteration-1]
 
                 if self.land[i][j] < 0:
                     # Advection term
@@ -86,7 +109,7 @@ class Layer:
                     next_mass[i][j] = current_mass[i][j] + self.dt*(-A + D)
 
                     # calculate evaporated percent
-                    if self.time_elapsed > 0.02:
+                    if self.time_elapsed > 0.02 and self.layer_number == 1:
                         evapPrcPrv = self.evapPrc
                         self.evapPrc = ((evaporation_rate + 0.045*(temperature-15))*np.log(self.time_elapsed*60))/2.5
 
@@ -102,21 +125,22 @@ class Layer:
 
 
         # shoreline deposition
-        for i in range(1, len(next_mass)-1):
-            for j in range(1, len(next_mass[0])-1):
-                if 0 <= self.land[i][j] <= self.maximumShorelineDeposition:
-                    if self.land[i-1][j] < 0:
-                        self.land[i][j] += self.shorelineConst * next_mass[i-1][j]
-                        next_mass[i-1][j] -= self.shorelineConst * next_mass[i-1][j]
-                    if self.land[i+1][j] < 0:
-                        self.land[i][j] += self.shorelineConst * next_mass[i+1][j]
-                        next_mass[i+1][j] -= self.shorelineConst * next_mass[i+1][j]
-                    if self.land[i][j-1] < 0:
-                        self.land[i][j] += self.shorelineConst * next_mass[i][j-1]
-                        next_mass[i][j-1] -= self.shorelineConst * next_mass[i][j-1]
-                    if self.land[i][j+1] < 0:
-                        self.land[i][j] += self.shorelineConst * next_mass[i][j+1]
-                        next_mass[i][j+1] -= self.shorelineConst * next_mass[i][j+1]
+        if self.layer_number == 1:
+            for i in range(1, len(next_mass)-1):
+                for j in range(1, len(next_mass[0])-1):
+                    if 0 <= self.land[i][j] <= self.maximumShorelineDeposition:
+                        if self.land[i-1][j] < 0:
+                            self.land[i][j] += self.shorelineConst * next_mass[i-1][j]
+                            next_mass[i-1][j] -= self.shorelineConst * next_mass[i-1][j]
+                        if self.land[i+1][j] < 0:
+                            self.land[i][j] += self.shorelineConst * next_mass[i+1][j]
+                            next_mass[i+1][j] -= self.shorelineConst * next_mass[i+1][j]
+                        if self.land[i][j-1] < 0:
+                            self.land[i][j] += self.shorelineConst * next_mass[i][j-1]
+                            next_mass[i][j-1] -= self.shorelineConst * next_mass[i][j-1]
+                        if self.land[i][j+1] < 0:
+                            self.land[i][j] += self.shorelineConst * next_mass[i][j+1]
+                            next_mass[i][j+1] -= self.shorelineConst * next_mass[i][j+1]
 
         self.mass = next_mass
 
@@ -131,8 +155,19 @@ class Layer:
                     tmp[i][j] = self.land[i][j]
                     land_sum += self.land[i][j]
         land_array.append(land_sum)
-        evaporation_array.append(self.evapPrc*self.allmass)
+        evaporation_array.append(self.evapPrc)
         spill_area_array.append((self.ifSpilledArray == 1).sum())
+
+        if self.layer_number == 1:
+            for i in range(1, len(next_mass)-1):
+                for j in range(1, len(next_mass[0])-1):
+                    array1[i][j][self.iteration] = next_mass[i][j]
+        elif self.layer_number == 2:
+            for i in range(1, len(next_mass)-1):
+                for j in range(1, len(next_mass[0])-1):
+                    array2[i][j][self.iteration] = next_mass[i][j]
+
+        self.iteration += 1
 
         return tmp
 
@@ -147,11 +182,11 @@ dx = dy = 0.05        # Every 0.2m
 dt = 1./30 # 30 fps
 nx = int(Lx/dx)
 ny = int(Ly/dy)     # number of steps
-m = np.zeros((ny, nx))
 # land test:
 l = getArrayFromJSON("maps", "zatoka2")
 
 K = 0.01    # Diffusion constant
+Rw = 0.01   # Vertical dispersion constant
 
 u = getArrayFromJSON("leftright", "zatokatest")
 v = getArrayFromJSON("updown", "zatokatest")
@@ -165,58 +200,122 @@ v *= 300
 #         v[i, j] = (0.1 + 0.001*(i-Ly) + np.sin(np.pi*j/Lx)/4)
 
 # set up initial state and global variables
-layer1 = Layer(m, l, u, K, v, dx, dy, dt)
+m = np.zeros((ny, nx))
+layer1 = Layer(m, l, u, K, v, dx, dy, dt, Rw, 1)
+m = np.zeros((ny, nx))
+layer2 = Layer(m, l, u, K, v, dx, dy, dt, Rw, 2)
+m = np.zeros((ny, nx))
+layer3 = Layer(m, l, u, K, v, dx, dy, dt, Rw, 3)
 
 #------------------------------------------------------------
-# set up figure and animation
-fig = plt.figure()
-
-ax = fig.add_subplot(111, autoscale_on=False,
-                     xlim=(0, nx-1), ylim=(0, ny-1))
-
-line = ax.imshow(layer1.update(), animated=True)
 img = mpimg.imread('res/zatoka_256.png')  # get image of coast
 img = np.flipud(img)    # had to be fliped other case it is up side down
-image = ax.imshow(img)
-time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
-fig.colorbar(line, ax=ax)
+# set up figure and animation
+fig1 = plt.figure(1)
+ax1 = fig1.add_subplot(111, autoscale_on=False,xlim=(0, nx-1), ylim=(0, ny-1))
+line1 = ax1.imshow(layer1.update(), animated=True)
+image1 = ax1.imshow(img)
+time_text1 = ax1.text(0.02, 0.95, '', transform=ax1.transAxes)
+fig1.colorbar(line1, ax=ax1)
 
-def init():
+# fig2 = plt.figure(2)
+# ax2 = fig2.add_subplot(111, autoscale_on=False,xlim=(0, nx-1), ylim=(0, ny-1))
+# line2 = ax2.imshow(layer2.update(), animated=True)
+# image2 = ax2.imshow(img)
+# time_text2 = ax2.text(0.02, 0.95, '', transform=ax2.transAxes)
+# line2.set_clim(0,5)
+# fig2.colorbar(line2, ax=ax2)
+
+# fig3 = plt.figure(3)
+# ax3 = fig3.add_subplot(111, autoscale_on=False,xlim=(0, nx-1), ylim=(0, ny-1))
+# line3 = ax3.imshow(layer3.update(), animated=True)
+# image3 = ax3.imshow(img)
+# time_text3 = ax3.text(0.02, 0.95, '', transform=ax3.transAxes)
+# line3.set_clim(0,2.5)
+# fig3.colorbar(line3, ax=ax3)
+
+
+def init1():
     """initialize animation"""
-    global layer1, dt, image
-    image.set_array(img)
-    line.set_array(layer1.update())
-    time_text.set_text('')
-    return line, image, time_text
+    global layer1, dt, image1
+    image1.set_array(img)
+    line1.set_array(layer1.update())
+    time_text1.set_text('')
+    return line1, image1, time_text1
 
 
-def animate(*i):
+def animate1(*i):
     """perform animation step"""
-    global layer1, dt, image, img
+    global layer1, dt, image1, img
     layer1.step(dt)
-    image.set_array(img)
-    line.set_array(layer1.update())
-    time_text.set_text('time = %.1f' % layer1.time_elapsed)
-    return line, image, time_text
+    image1.set_array(img)
+    line1.set_array(layer1.update())
+    time_text1.set_text('time = %.1f' % layer1.time_elapsed)
+    return line1, image1, time_text1
+
+
+# def init2():
+#     """initialize animation"""
+#     global layer2, dt, image2
+#     image2.set_array(img)
+#     line2.set_array(layer2.update())
+#     time_text2.set_text('')
+#     return line2, image2, time_text2
+
+
+# def animate2(*i):
+#     """perform animation step"""
+#     global layer2, dt, image2, img
+#     layer2.step(dt)
+#     image2.set_array(img)
+#     line2.set_array(layer2.update())
+#     time_text2.set_text('time = %.1f' % layer2.time_elapsed)
+#     return line2, image2, time_text2
+
+
+# def init3():
+#     """initialize animation"""
+#     global layer3, dt, image3
+#     image3.set_array(img)
+#     line3.set_array(layer3.update())
+#     time_text3.set_text('')
+#     return line3, image3, time_text3
+
+
+# def animate3(*i):
+#     """perform animation step"""
+#     global layer3, dt, image3, img
+#     layer3.step(dt)
+#     image3.set_array(img)
+#     line3.set_array(layer3.update())
+#     time_text3.set_text('time = %.1f' % layer3.time_elapsed)
+#     return line3, image3, time_text3
 
 
 # choose the interval based on dt and the time to animate one step
 from time import time
 t0 = time()
-animate(0)
+animate1(0)
 t1 = time()
 interval = 500 * dt - (t1 - t0)
 
-ani = animation.FuncAnimation(
-    fig, animate, frames=300, interval=interval, blit=True, init_func=init)
-
+ani1 = animation.FuncAnimation(
+    fig1, animate1, frames=300, interval=interval, blit=True, init_func=init1)
 plt.show()
+
+# ani2 = animation.FuncAnimation(
+#     fig2, animate2, frames=300, interval=interval, blit=True, init_func=init2)
+# plt.show()
+
+# ani3 = animation.FuncAnimation(
+#     fig3, animate3, frames=300, interval=interval, blit=True, init_func=init3)
+# plt.show()
 
 #plt.figure(1)
-plt.plot(land_array)
-plt.ylabel('masa ropy osadzona na brzegu')
-plt.xlabel('krok czasowy')
-plt.show()
+#plt.plot(land_array)
+#plt.ylabel('masa ropy osadzona na brzegu')
+#plt.xlabel('krok czasowy')
+#plt.show()
 
 # i = 1
 # while i < len(evaporation_array):
@@ -224,12 +323,12 @@ plt.show()
 #     i = i+1
 
 #plt.figure(2)
-plt.plot(evaporation_array)
-plt.ylabel('Ilośc odparowanej ropy w litrach')
-plt.xlabel('godziny')
-plt.show()
+#plt.plot(evaporation_array)
+#plt.ylabel('Procent odparowanej ropy')
+#plt.xlabel('krok czasowy')
+#plt.show()
 
-plt.plot(spill_area_array)
-plt.ylabel('Powierzchnia objęta wyciekiem')
-plt.xlabel('krok czasowy')
-plt.show()
+#plt.plot(spill_area_array)
+#plt.ylabel('Powierzchnia objęta wyciekiem')
+#plt.xlabel('krok czasowy')
+#plt.show()
