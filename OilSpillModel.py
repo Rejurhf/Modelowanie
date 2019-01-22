@@ -90,7 +90,7 @@ class Layer:
                         totalMass = next_mass[i][j]/evapPrcPrv  # Calculate total mass without evaporation
                         if self.evapPrc <= 0:   # in case devision by 0
                             self.evapPrc = 0.0000001
-                        next_mass[i][j] -= next_mass[i][j]*(self.evapPrc-evapPrcPrv)    # substract
+                        next_mass[i][j] -= totalMass*(self.evapPrc-evapPrcPrv)    # substract
 
                     if next_mass[i][j] < 0:
                         next_mass[i][j] = np.abs(next_mass[i][j])
