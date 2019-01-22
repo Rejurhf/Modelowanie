@@ -13,6 +13,7 @@ evaporation_rate = 0.00002
 temperature = 20
 time_step = 10
 
+spill_area_array = []
 evaporation_array = []
 
 class Layer:
@@ -45,9 +46,9 @@ class Layer:
         self.shorelineConst = 0.15
         self.maximumShorelineDeposition = 12
         self.evapPrc = 0.0000001
+        self.ifSpilledArray = m = np.zeros((len(self.mass), len(self.mass[0])))
 
     def update(self):
-
         current_mass = self.mass    # array of mass in t
         next_mass = current_mass    # array of mass in t+1
 
@@ -61,7 +62,7 @@ class Layer:
         if self.time_elapsed < 1:
             for m in range(90, 100):
                 for n in range(70, 80):
-                    next_mass[m,n] += 50
+                    next_mass[m,n] += 10
 
         # calculate oil spill
         for i in range(1, len(current_mass)-1):
@@ -96,6 +97,8 @@ class Layer:
                         next_mass[i][j] = np.abs(next_mass[i][j])
                     if next_mass[i][j] < 0.1:
                         next_mass[i][j] = 0
+                    if next_mass[i][j] > 1:
+                        self.ifSpilledArray[i][j] = 1
 
 
         # shoreline deposition
@@ -129,7 +132,7 @@ class Layer:
                     land_sum += self.land[i][j]
         land_array.append(land_sum)
         evaporation_array.append(self.evapPrc)
-
+        spill_area_array.append((self.ifSpilledArray == 1).sum())
 
         return tmp
 
@@ -222,6 +225,11 @@ plt.show()
 
 #plt.figure(2)
 plt.plot(evaporation_array)
-plt.ylabel('masa ropy odparowana')
+plt.ylabel('Procent odparowanej ropy')
+plt.xlabel('krok czasowy')
+plt.show()
+
+plt.plot(spill_area_array)
+plt.ylabel('Powierzchnia objęta wyciekiem')
 plt.xlabel('krok czasowy')
 plt.show()
