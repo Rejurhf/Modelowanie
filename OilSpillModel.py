@@ -47,6 +47,7 @@ class Layer:
         self.maximumShorelineDeposition = 12
         self.evapPrc = 0.0000001
         self.ifSpilledArray = m = np.zeros((len(self.mass), len(self.mass[0])))
+        self.allmass = 0
 
     def update(self):
         current_mass = self.mass    # array of mass in t
@@ -62,7 +63,8 @@ class Layer:
         if self.time_elapsed < 1:
             for m in range(90, 100):
                 for n in range(70, 80):
-                    next_mass[m,n] += 10
+                    next_mass[m,n] += 50
+                    self.allmass += 50
 
         # calculate oil spill
         for i in range(1, len(current_mass)-1):
@@ -95,8 +97,6 @@ class Layer:
 
                     if next_mass[i][j] < 0:
                         next_mass[i][j] = np.abs(next_mass[i][j])
-                    if next_mass[i][j] < 0.1:
-                        next_mass[i][j] = 0
                     if next_mass[i][j] > 1:
                         self.ifSpilledArray[i][j] = 1
 
@@ -131,7 +131,7 @@ class Layer:
                     tmp[i][j] = self.land[i][j]
                     land_sum += self.land[i][j]
         land_array.append(land_sum)
-        evaporation_array.append(self.evapPrc)
+        evaporation_array.append(self.evapPrc*self.allmass)
         spill_area_array.append((self.ifSpilledArray == 1).sum())
 
         return tmp
@@ -225,8 +225,8 @@ plt.show()
 
 #plt.figure(2)
 plt.plot(evaporation_array)
-plt.ylabel('Procent odparowanej ropy')
-plt.xlabel('krok czasowy')
+plt.ylabel('Ilośc odparowanej ropy w litrach')
+plt.xlabel('godziny')
 plt.show()
 
 plt.plot(spill_area_array)
