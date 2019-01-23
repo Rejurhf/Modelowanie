@@ -90,6 +90,12 @@ def deleteFile(filename):
     else:
         print("File does not exist")
 
+def deleteFileCur(filename):
+    if os.path.exists(filename):
+        os.remove(filename)
+    else:
+        print("File does not exist")
+
 def getArrayNamesFromJSON(filename):
     ''' Get array names from file
         filename - file with arrays;
@@ -108,6 +114,31 @@ def getArrayNamesFromJSON(filename):
         keys.sort()
         return keys
     return [] # else return empty list
+
+def saveLogs(arrayname1, array1, arrayname2, array2, arrayname3, array3):
+    deleteFileCur("log.txt")
+    fw = open("log.txt", 'w')   # open file to write data
+    tmp_dict = {}
+
+    if isinstance(array1,(list,)):   # if array is not list convert it to list
+        tmp_dict[arrayname1] = array1  # create dict from name and array
+    else:
+        tmp_dict[arrayname1] = array1.tolist()
+
+    if isinstance(array2,(list,)):   # if array is not list convert it to list
+        tmp_dict[arrayname2] = array2  # create dict from name and array
+    else:
+        tmp_dict[arrayname2] = array2.tolist()
+
+    if isinstance(array3,(list,)):   # if array is not list convert it to list
+        tmp_dict[arrayname3] = array3  # create dict from name and array
+    else:
+        tmp_dict[arrayname3] = array3.tolist()
+
+    fw.write(str(tmp_dict))  # save dict to file
+    fw.close()
+
+
 # ------------------------------------------------------------
 # deleteFile("test.json")
 # K = np.zeros((5,5))

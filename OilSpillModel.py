@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import scipy.integrate as integrate
 import matplotlib.animation as animation
-from filecontroller import getArrayFromJSON
+from filecontroller import getArrayFromJSON, saveLogs
 from menu import choserArray, choserTemperature
 
 land_array = []
@@ -330,6 +330,8 @@ ani3 = animation.FuncAnimation(
     fig3, animate3, frames=300, interval=interval, blit=True, init_func=init3)
 
 plt.show()
+
+saveLogs("shoreline_deposition", land_array, "evaporation", evaporation_array, "spil_area", spill_area_array)
 
 plt.figure(1)
 plt.plot(land_array)
