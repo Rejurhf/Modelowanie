@@ -161,10 +161,10 @@ class Layer:
                 else:
                     tmp[i][j] = self.land[i][j]
                     land_sum += self.land[i][j]
-        
+
         if self.layer_number == 1:
             land_array.append(land_sum)
-            evaporation_array.append(self.totalMassEvap * self.evapPrc / 10)
+            evaporation_array.append(self.totalMassEvap * self.evapPrc / 15)
             spill_area_array.append((self.ifSpilledArray == 1).sum())
 
         if self.layer_number == 1:
