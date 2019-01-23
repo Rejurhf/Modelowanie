@@ -161,8 +161,9 @@ class Layer:
                 else:
                     tmp[i][j] = self.land[i][j]
                     land_sum += self.land[i][j]
-        land_array.append(land_sum)
+        
         if self.layer_number == 1:
+            land_array.append(land_sum)
             evaporation_array.append(self.totalMassEvap * self.evapPrc / 10)
             spill_area_array.append((self.ifSpilledArray == 1).sum())
 
@@ -321,14 +322,13 @@ interval = 500 * dt - (t1 - t0)
 
 ani1 = animation.FuncAnimation(
     fig1, animate1, frames=300, interval=interval, blit=True, init_func=init1)
-plt.show()
 
 ani2 = animation.FuncAnimation(
     fig2, animate2, frames=300, interval=interval, blit=True, init_func=init2)
-plt.show()
 
 ani3 = animation.FuncAnimation(
     fig3, animate3, frames=300, interval=interval, blit=True, init_func=init3)
+
 plt.show()
 
 plt.figure(1)
