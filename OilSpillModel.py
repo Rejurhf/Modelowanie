@@ -54,6 +54,7 @@ class Layer:
         self.shorelineConst = 0.15
         self.maximumShorelineDeposition = 12
         self.evapPrc = 0.0000001
+        self.totalMassEvap = 0
         self.ifSpilledArray = m = np.zeros((len(self.mass), len(self.mass[0])))
 
         self.iteration = 0
@@ -73,6 +74,7 @@ class Layer:
             for m in range(90, 100):
                 for n in range(70, 80):
                     next_mass[m,n] += 10
+                    self.totalMassEvap += 10
 
         if 0.5 < self.time_elapsed < 1.5 and self.layer_number == 2:
             for m in range(90, 100):
@@ -113,12 +115,15 @@ class Layer:
                     # calculate evaporated percent
                     if self.time_elapsed > 0.02 and self.layer_number == 1:
                         evapPrcPrv = self.evapPrc
-                        self.evapPrc = ((evaporation_rate + 0.045*(self.temperature-15))*np.log(self.time_elapsed*60))/2.5
+                        self.evapPrc = ((evaporation_rate + 0.045*(self.temperature-15))*np.log(self.time_elapsed*60))/14
 
                         totalMass = next_mass[i][j]/evapPrcPrv  # Calculate total mass without evaporation
                         if self.evapPrc <= 0:   # in case devision by 0
                             self.evapPrc = 0.0000001
-                        next_mass[i][j] -= totalMass*(self.evapPrc-evapPrcPrv)    # substract
+                        evaporated = totalMass*(self.evapPrc-evapPrcPrv)
+                        if evaporated > 0:
+                            next_mass[i][j] -= evaporated   # substract
+                            # self.totalMassEvap += evaporated
 
                     if next_mass[i][j] < 0:
                         next_mass[i][j] = np.abs(next_mass[i][j])
@@ -158,7 +163,7 @@ class Layer:
                     land_sum += self.land[i][j]
         land_array.append(land_sum)
         if self.layer_number == 1:
-            evaporation_array.append(self.evapPrc)
+            evaporation_array.append(self.totalMassEvap * self.evapPrc / 10)
             spill_area_array.append((self.ifSpilledArray == 1).sum())
 
         if self.layer_number == 1:
@@ -326,24 +331,24 @@ plt.show()
 #     fig3, animate3, frames=300, interval=interval, blit=True, init_func=init3)
 # plt.show()
 
-#plt.figure(1)
-#plt.plot(land_array)
-#plt.ylabel('masa ropy osadzona na brzegu')
-#plt.xlabel('krok czasowy')
-#plt.show()
+plt.figure(1)
+plt.plot(land_array)
+plt.ylabel('Masa ropy osadzona na brzegu [kg]')
+plt.xlabel('czas w godzinach')
+plt.show()
 
 # i = 1
 # while i < len(evaporation_array):
 #     evaporation_array[i] += evaporation_array[i-1]
 #     i = i+1
 
-#plt.figure(2)
-#plt.plot(evaporation_array)
-#plt.ylabel('Procent odparowanej ropy')
-#plt.xlabel('krok czasowy')
-#plt.show()
+plt.figure(2)
+plt.plot(evaporation_array)
+plt.ylabel('Ilość odparowanej ropy [kg]')
+plt.xlabel('czas w godzinach')
+plt.show()
 
-#plt.plot(spill_area_array)
-#plt.ylabel('Powierzchnia objęta wyciekiem')
-#plt.xlabel('krok czasowy')
-#plt.show()
+plt.plot(spill_area_array)
+plt.ylabel('Powierzchnia objęta wyciekiem [km]')
+plt.xlabel('czas w godzinach')
+plt.show()
