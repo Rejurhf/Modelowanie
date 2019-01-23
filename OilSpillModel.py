@@ -238,21 +238,21 @@ image1 = ax1.imshow(img)
 time_text1 = ax1.text(0.02, 0.95, '', transform=ax1.transAxes)
 fig1.colorbar(line1, ax=ax1)
 
-# fig2 = plt.figure(2)
-# ax2 = fig2.add_subplot(111, autoscale_on=False,xlim=(0, nx-1), ylim=(0, ny-1))
-# line2 = ax2.imshow(layer2.update(), animated=True)
-# image2 = ax2.imshow(img)
-# time_text2 = ax2.text(0.02, 0.95, '', transform=ax2.transAxes)
-# line2.set_clim(0,5)
-# fig2.colorbar(line2, ax=ax2)
+fig2 = plt.figure(2)
+ax2 = fig2.add_subplot(111, autoscale_on=False,xlim=(0, nx-1), ylim=(0, ny-1))
+line2 = ax2.imshow(layer2.update(), animated=True)
+image2 = ax2.imshow(img)
+time_text2 = ax2.text(0.02, 0.95, '', transform=ax2.transAxes)
+line2.set_clim(0,5)
+fig2.colorbar(line2, ax=ax2)
 
-# fig3 = plt.figure(3)
-# ax3 = fig3.add_subplot(111, autoscale_on=False,xlim=(0, nx-1), ylim=(0, ny-1))
-# line3 = ax3.imshow(layer3.update(), animated=True)
-# image3 = ax3.imshow(img)
-# time_text3 = ax3.text(0.02, 0.95, '', transform=ax3.transAxes)
-# line3.set_clim(0,2.5)
-# fig3.colorbar(line3, ax=ax3)
+fig3 = plt.figure(3)
+ax3 = fig3.add_subplot(111, autoscale_on=False,xlim=(0, nx-1), ylim=(0, ny-1))
+line3 = ax3.imshow(layer3.update(), animated=True)
+image3 = ax3.imshow(img)
+time_text3 = ax3.text(0.02, 0.95, '', transform=ax3.transAxes)
+line3.set_clim(0,2.5)
+fig3.colorbar(line3, ax=ax3)
 
 
 def init1():
@@ -274,42 +274,42 @@ def animate1(*i):
     return line1, image1, time_text1
 
 
-# def init2():
-#     """initialize animation"""
-#     global layer2, dt, image2
-#     image2.set_array(img)
-#     line2.set_array(layer2.update())
-#     time_text2.set_text('')
-#     return line2, image2, time_text2
+def init2():
+    """initialize animation"""
+    global layer2, dt, image2
+    image2.set_array(img)
+    line2.set_array(layer2.update())
+    time_text2.set_text('')
+    return line2, image2, time_text2
 
 
-# def animate2(*i):
-#     """perform animation step"""
-#     global layer2, dt, image2, img
-#     layer2.step(dt)
-#     image2.set_array(img)
-#     line2.set_array(layer2.update())
-#     time_text2.set_text('time = %.1f' % layer2.time_elapsed)
-#     return line2, image2, time_text2
+def animate2(*i):
+    """perform animation step"""
+    global layer2, dt, image2, img
+    layer2.step(dt)
+    image2.set_array(img)
+    line2.set_array(layer2.update())
+    time_text2.set_text('time = %.1f' % layer2.time_elapsed)
+    return line2, image2, time_text2
 
 
-# def init3():
-#     """initialize animation"""
-#     global layer3, dt, image3
-#     image3.set_array(img)
-#     line3.set_array(layer3.update())
-#     time_text3.set_text('')
-#     return line3, image3, time_text3
+def init3():
+    """initialize animation"""
+    global layer3, dt, image3
+    image3.set_array(img)
+    line3.set_array(layer3.update())
+    time_text3.set_text('')
+    return line3, image3, time_text3
 
 
-# def animate3(*i):
-#     """perform animation step"""
-#     global layer3, dt, image3, img
-#     layer3.step(dt)
-#     image3.set_array(img)
-#     line3.set_array(layer3.update())
-#     time_text3.set_text('time = %.1f' % layer3.time_elapsed)
-#     return line3, image3, time_text3
+def animate3(*i):
+    """perform animation step"""
+    global layer3, dt, image3, img
+    layer3.step(dt)
+    image3.set_array(img)
+    line3.set_array(layer3.update())
+    time_text3.set_text('time = %.1f' % layer3.time_elapsed)
+    return line3, image3, time_text3
 
 
 # choose the interval based on dt and the time to animate one step
@@ -323,13 +323,13 @@ ani1 = animation.FuncAnimation(
     fig1, animate1, frames=300, interval=interval, blit=True, init_func=init1)
 plt.show()
 
-# ani2 = animation.FuncAnimation(
-#     fig2, animate2, frames=300, interval=interval, blit=True, init_func=init2)
-# plt.show()
+ani2 = animation.FuncAnimation(
+    fig2, animate2, frames=300, interval=interval, blit=True, init_func=init2)
+plt.show()
 
-# ani3 = animation.FuncAnimation(
-#     fig3, animate3, frames=300, interval=interval, blit=True, init_func=init3)
-# plt.show()
+ani3 = animation.FuncAnimation(
+    fig3, animate3, frames=300, interval=interval, blit=True, init_func=init3)
+plt.show()
 
 plt.figure(1)
 plt.plot(land_array)
